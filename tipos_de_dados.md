@@ -211,7 +211,7 @@ Tabela de operadores e seus métodos
 | `<<` | `__lshift__` | deslocamento para a equerda |
 | `>>` | `__rshift__` | deslocamento para a direita |
 | `&` | `__and__` | E bit-a-bit |
-| `|` | `__or__` | OU bit-a-bit |
+| <code>&#124;</code> | `__or__` | OU bit-a-bit |
 | `^` | `__xor__` | Ou exclusivo bit-a-bit |
 | `~` | `__inv__` | inversão |
 	

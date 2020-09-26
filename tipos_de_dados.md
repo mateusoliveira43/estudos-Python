@@ -216,4 +216,152 @@ Tabela de operadores e seus métodos
 | `~` | `__inv__` | inversão |
 	
 Métodos mágicos: https://rszalski.github.io/magicmethods/
+
+Gerenciamento de contexto
+```python
+class AbrirArquivo:
+	def __init__(self, arquivo, modo, enconding='utf-8'):
+		self.nome = arquivo
+		# self.modo = modo
+		print('Inicializando a Classe')
+		print('Abrindo o arquivo.')
+		self.arquivo = open(arquivo, modo, encoding=enconding)
+	
+	def __enter__(self):
+		print('Entrando na Classe')
+		print('Retornando o arquivo.')
+		return self.arquivo
+	
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		print('Saindo da Classe')
+		print('Fechando o arquivo.')
+		self.arquivo.close()
+		# Tratando exceções
+		# exc_type : tipo da exceção
+		# exc_val : valor da exceção
+		# exc_tb : traceback da exceção
+		return True  # Não mostra as exceções na tela
+```
+```python
+with AbrirArquivo('teste.txt', 'w+') as file:
+	print(f'{"#"*30}\nEscrevendo no arquivo...')
+	file.write('Título\n\n')
+	file.write(f'Corpo do texto.\n')
+	file.write(f'Corpo do texto.\n')
+	file.write(f'Corpo do texto.\n')
+	file.write(f'Corpo do texto.\n')
+	print(f'Fim da escrita do arquivo.\n{"#"*30}')
+```
+```python
+# Metaclasses: Criar comportamentos nas classes herdadas
+class Meta(type):
+	def __new__(mcs, name, bases, namespace):
+		print(mcs)
+		print(name)
+		print(bases)
+		print(namespace)
+	
+	if 'metodo' not in namespace:
+		print(f'Não existe metodo (atributo ou método) em {name}.')
+	else:
+		if not callable(namespace['metodo']):
+			print(f'metodo não é método em {name}.')
+	
+	return type.__new__(mcs, name, bases, namespace)  # Para criação da metaclasse
+	
+	
+class Classe(metaclass=Meta):  # Para herdar da metaclasse
+	def __init__(self, nome):
+		self.nome = nome
+	
+	metodo = 'valor'
+	# def metodo(self):
+	#     pass
+```
+Dataclasses
+```python
+from dataclasses import dataclass, field, asdict, astuple
+	
+	
+@dataclass(eq=False, repr=True, order=False, frozen=False, init=True)
+class Pessoa:
+	"""
+	init = True (padrão): cria o inicializador (__init__) de forma compacta
+	frozen = False (padrão): se True, não podemos mexer ou criar atributos da clase
+	order = False (padrão): se True, deixa comparar objetos (classes) (Ex.: <)
+	repr = True (padrão): mostra o que é o objeto (classe) mais bonitinho
+	eq = True (padrão): classes com mesmos argumentos se tornam iguais
+	"""
+	nome: str
+	sobrenome: str = field(repr=False)  # Não aparece na representação (print(Pessoa))
+	
+	def __post_init__(self):
+		if not isinstance(self.nome, str):
+			raise TypeError(f'Tipo de dado inválido. '
+				f'{type(self.nome)} não é uma string {self}.')
+	
+	@property
+	def nome_completo(self):
+		return f'{self.nome} {self.sobrenome}'
+	
+	
+p1 = Pessoa('Mateus', 'Oliveira')
+print(p1.nome_completo)
+print(p1)
+print(asdict(p1), type(asdict(p1)), asdict(p1)['nome'])  # Transforma em dicionário
+print(astuple(p1), type(astuple(p1)))  # Transforma em tupla
+```
+```python
+from enum import Enum, auto
+	
+	
+class Direcoes(Enum):
+	direita = 0 # Direcoes.direita.name = 'direita', Direcoes.direita.value = 0
+	esquerda = auto()
+	cima = auto()
+	baixo = auto()
+	
+	
+	def movimentacao(direcao):
+		if not isinstance(direcao, Direcoes):
+			raise ValueError(f'Personagem não pode se movimentar para {direcao}.')
+		return print(f'Personagem se movimentou para {direcao.name}.')
+	
+	
+	movimentacao(Direcoes.esquerda)
+	movimentacao(Direcoes.direita)
+	movimentacao(Direcoes.cima)
+	movimentacao(Direcoes.baixo)
+```
+Criando um iterador
+```python
+class Lista:
+	def __init__(self):
+		self.__items = []
+		self.__index = 0
+	
+	def add(self, valor):
+		return self.__items.append(valor)
+	
+	def __getitem__(self, index):
+		return self.__items[index]
+	
+	def __setitem__(self, index, valor):
+		self.__items[index] = valor
+	
+	def __iter__(self):
+		return self
+	
+	def __next__(self):
+		try:
+			item = self.__items[self.__index]
+			self.__index += 1
+			return item
+		except IndexError:
+			raise StopIteration
+	
+	def __str__(self):
+		return f'{self.__class__.__name__}: {self.__items}'
+```
+`__str__` para o usuário e `__repr__` para desenvolvedor.
 	

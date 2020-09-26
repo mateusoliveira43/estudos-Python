@@ -5,3 +5,4 @@ Resumo de "Curso de Python 3 do Básico Ao Avançado (com projetos reais)" minis
 # Sumário
 
 - [Tipos de Dados](tipos_de_dados.md)
+- [Códigos](codigos.md)
